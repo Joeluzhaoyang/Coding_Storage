@@ -11,7 +11,7 @@ using namespace std;
 int main(){
     int y;
     int& x = y;
-    int&& a = 7;
+    int&& a = 999;
     cout<<x<<endl;
 
     return 0;
