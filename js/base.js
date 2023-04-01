@@ -26,12 +26,12 @@
 
         for (var i = 0; i < inputData.data.length; i += 4) {
             // Find the grayscale value using simple averaging
-           
+            var Average_gray = (inputData.data[i] + inputData.data[i+1] + inputData.data[i+2])/3;
             // Change the RGB components to the resulting value
 
-            outputData.data[i]     = inputData.data[i];
-            outputData.data[i + 1] = inputData.data[i + 1];
-            outputData.data[i + 2] = inputData.data[i + 2];
+            outputData.data[i] = Average_gray;
+            outputData.data[i + 1] = Average_gray;
+            outputData.data[i + 2] = Average_gray;
         }
     }
 
@@ -48,9 +48,26 @@
         for (var i = 0; i < inputData.data.length; i += 4) {
             // Change the RGB components by adding an offset
 
-            outputData.data[i]     = inputData.data[i];
-            outputData.data[i + 1] = inputData.data[i + 1];
-            outputData.data[i + 2] = inputData.data[i + 2];
+            outputData.data[i]     = inputData.data[i] + offset;
+            if(outputData.data[i] < 0){
+                outputData.data[i] = 0;
+            } else if (outputData.data[i]>255){
+                outputData.data[i] = 255;
+            }
+
+            outputData.data[i + 1] = inputData.data[i + 1] + offset;
+            if (outputData.data[i+1] < 0) {
+                outputData.data[i+1] = 0;
+            } else if (outputData.data[i+1] > 255) {
+                outputData.data[i+1] = 255;
+            }
+
+            outputData.data[i + 2] = inputData.data[i + 2] + offset;
+            if (outputData.data[i+2] < 0) {
+                outputData.data[i+2] = 0;
+            } else if (outputData.data[i+2] > 255) {
+                outputData.data[i+2] = 255;
+            }
 
             // Handle clipping of the RGB components
         }
@@ -69,9 +86,27 @@
         for (var i = 0; i < inputData.data.length; i += 4) {
             // Change the RGB components by multiplying a factor
 
-            outputData.data[i]     = inputData.data[i];
-            outputData.data[i + 1] = inputData.data[i + 1];
-            outputData.data[i + 2] = inputData.data[i + 2];
+            outputData.data[i]     = inputData.data[i] * factor;
+            if (outputData.data[i] < 0) {
+                outputData.data[i] = 0;
+            } else if (outputData.data[i] > 255) {
+                outputData.data[i] = 255;
+            }
+
+            outputData.data[i + 1] = inputData.data[i + 1] * factor;
+            if (outputData.data[i + 1] < 0) {
+                outputData.data[i + 1] = 0;
+            } else if (outputData.data[i + 1] > 255) {
+                outputData.data[i + 1] = 255;
+            }
+
+            outputData.data[i + 2] = inputData.data[i + 2] * factor;
+            outputData.data[i + 2] = inputData.data[i + 2] + offset;
+            if (outputData.data[i + 2] < 0) {
+                outputData.data[i + 2] = 0;
+            } else if (outputData.data[i + 2] > 255) {
+                outputData.data[i + 2] = 255;
+            }
 
             // Handle clipping of the RGB components
         }
@@ -106,9 +141,9 @@
         for (var i = 0; i < inputData.data.length; i += 4) {
             // Apply the bitmasks onto the RGB channels
 
-            outputData.data[i]     = inputData.data[i];
-            outputData.data[i + 1] = inputData.data[i + 1];
-            outputData.data[i + 2] = inputData.data[i + 2];
+            outputData.data[i]     = inputData.data[i] & makeBitMask(redBits);
+            outputData.data[i + 1] = inputData.data[i + 1] & makeBitMask(greenBits);
+            outputData.data[i + 2] = inputData.data[i + 2] & makeBitMask(blueBits);
         }
     }
 
@@ -125,12 +160,17 @@
         for (var i = 0; i < inputData.data.length; i += 4) {
             // Find the grayscale value using simple averaging
             // You will apply thresholding on the grayscale value
-           
+            var GrayScale = (inputData.data[i] + inputData.data[i + 1] + inputData.data[i+2])/3;
             // Change the colour to black or white based on the given threshold
-
-            outputData.data[i]     = inputData.data[i];
-            outputData.data[i + 1] = inputData.data[i + 1];
-            outputData.data[i + 2] = inputData.data[i + 2];
+            if(GrayScale < thresholdValue){
+                outputData.data[i] = 0;
+                outputData.data[i + 1] = 0;
+                outputData.data[i + 2] = 0;
+            }else{
+                outputData.data[i] = 255;
+                outputData.data[i + 1] = 255;
+                outputData.data[i + 2] = 255;
+            }
         }
     }
 
