@@ -101,7 +101,7 @@
             }
 
             outputData.data[i + 2] = inputData.data[i + 2] * factor;
-            outputData.data[i + 2] = inputData.data[i + 2] + offset;
+            //outputData.data[i + 2] = inputData.data[i + 2] + offset;
             if (outputData.data[i + 2] < 0) {
                 outputData.data[i + 2] = 0;
             } else if (outputData.data[i + 2] > 255) {
@@ -180,8 +180,36 @@
     function buildHistogram(inputData, channel) {
         var histogram = [];
         for (var i = 0; i < 256; i++)
-            histogram[i] = 0;
+           {histogram[i] = 0;}
+        
+        switch(channel){
+        case "gray":
+            for(var i = 0; i < inputData.data.length; i++){
+                var grays = parseInt((inputData.data[i*4]+inputData.data[i*4+1]+
+                            inputData.data[i*4+2])/3);
+                histogram[grays]++;
+            }
+            break;
 
+        case "red":
+            for(var i = 0; i < inputData.data.length; i++){
+                var grays = inputData.data[i*4];
+                histogram[grays]++;
+            }
+            break;
+        case "green":
+                for (var i = 0; i < inputData.data.length; i++) {
+                    var grays = inputData.data[i * 4+1];
+                    histogram[grays]++;
+                }
+                break;
+        case "blue":
+                for (var i = 0; i < inputData.data.length; i++) {
+                    var grays = inputData.data[i * 4+2];
+                    histogram[grays]++;
+                }
+                break;
+        }
         /**
          * TODO: You need to build the histogram here
          */
@@ -202,10 +230,41 @@
      */
     function findMinMax(histogram, pixelsToIgnore) {
         var min = 0, max = 255;
-
+        var pixalmin = pixelsToIgnore;
         /**
          * TODO: You need to build the histogram here
          */
+        if(pixelsToIgnore == 0){
+            for(var i = 0; i < 256; i++){
+                if(histogram[i] > 0 ){
+                    min = i;
+                    break;
+                }
+            }
+            for(var i = 255; i > -1; i--){
+                if(histogram[i] > 0){
+                    max = i;
+                    break;
+                }
+            }
+        }
+        else{
+            for (var i = 0; i < 256; i++) {
+                pixalmin -= histogram[i];
+                if (pixalmin <= 0 && histogram[i] != 0) {
+                    min = i;
+                    break;
+                }
+            }
+            pixalmin = pixelsToIgnore;
+            for (var i = 255; i > -1; i--) {
+                pixalmin -= histogram[i];
+                if (pixalmin <= 0 && histogram[i] != 0) {
+                    max = i;
+                    break;
+                }
+            }
+        }
 
         // Find the minimum in the histogram with non-zero value by
         // ignoring the number of pixels given by pixelsToIgnore
@@ -229,12 +288,13 @@
         if (type == "gray") {
             // Build the grayscale histogram
             histogram = buildHistogram(inputData, "gray");
+            console.log(histogram.slice(0, 10).join(","));
 
             // Find the minimum and maximum grayscale values with non-zero pixels
             minMax = findMinMax(histogram, pixelsToIgnore);
 
             var min = minMax.min, max = minMax.max, range = max - min;
-
+            console.log(min,max);
             /**
              * TODO: You need to apply the correct adjustment to each pixel
              */
@@ -242,9 +302,9 @@
             for (var i = 0; i < inputData.data.length; i += 4) {
                 // Adjust each pixel based on the minimum and maximum values
 
-                outputData.data[i]     = inputData.data[i];
-                outputData.data[i + 1] = inputData.data[i + 1];
-                outputData.data[i + 2] = inputData.data[i + 2];
+                outputData.data[i]     = (inputData.data[i] - min)/range*255;
+                outputData.data[i + 1] = (inputData.data[i+1] - min) / range * 255;
+                outputData.data[i + 2] = (inputData.data[i+2] - min) / range * 255;
             }
         }
         else {
@@ -253,13 +313,24 @@
              * TODO: You need to apply the same procedure for each RGB channel
              *       based on what you have done for the grayscale version
              */
+            var Rhistogram = buildHistogram(inputData, "red");
+            minMax = findMinMax(Rhistogram, pixelsToIgnore);
+            var Rmin = minMax.min, Rmax = minMax.max, Rrange = Rmax - Rmin;
+
+            var Ghistogram = buildHistogram(inputData, "green");
+            minMax = findMinMax(Ghistogram, pixelsToIgnore);
+            var Gmin = minMax.min, Gmax = minMax.max, Grange = Gmax - Gmin;
+
+            var Bhistogram = buildHistogram(inputData, "blue");
+            minMax = findMinMax(Bhistogram, pixelsToIgnore);
+            var Bmin = minMax.min, Bmax = minMax.max, Brange = Bmax - Bmin;
 
             for (var i = 0; i < inputData.data.length; i += 4) {
                 // Adjust each channel based on the histogram of each one
 
-                outputData.data[i]     = inputData.data[i];
-                outputData.data[i + 1] = inputData.data[i + 1];
-                outputData.data[i + 2] = inputData.data[i + 2];
+                outputData.data[i] = (inputData.data[i] - Rmin) / Rrange * 255;
+                outputData.data[i + 1] = (inputData.data[i+1] - Gmin) / Grange * 255;;
+                outputData.data[i + 2] = (inputData.data[i+2] - Bmin) / Brange * 255;;
             }
         }
     }
